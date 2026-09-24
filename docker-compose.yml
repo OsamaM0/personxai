@@ -1,0 +1,69 @@
+# PersonXAI self-hosted stack (docs/DOCKER.md)
+#
+#   cp .dev.vars.example .dev.vars   # fill it in (or `npm run setup` writes it)
+#   docker compose up -d
+#   docker compose --profile tunnel up -d   # + a Cloudflare Tunnel for the webhooks
+#
+# Services:
+#   app     the Worker on workerd (wrangler dev / Miniflare), state in a volume
+#   cron    replaces the Cloudflare cron trigger: POST /dispatch every minute
+#   tunnel  (profile "tunnel") cloudflared — gives the container a public HTTPS
+#           URL so Telegram / WhatsApp can reach /channels/*/webhook
+
+services:
+  app:
+    build: .
+    image: ghcr.io/osamam0/personxai:latest
+    restart: unless-stopped
+    env_file:
+      - .dev.vars
+    environment:
+      PERSONXAI_PORT: "8787"
+      # Set to your public URL (tunnel hostname) so /dashboard links and the
+      # Telegram Mini App button point at something reachable.
+      # PUBLIC_BASE_URL: https://assistant.example.com
+    ports:
+      - "8787:8787"
+    volumes:
+      - personxai-data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8787/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+
+  cron:
+    image: curlimages/curl:8.10.1
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_healthy
+    env_file:
+      - .dev.vars
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        echo "[cron] dispatching every 60s";
+        while true; do
+          curl -fsS -X POST -H "Authorization: Bearer $$DISPATCH_SECRET" http://app:8787/dispatch >/dev/null \
+            || echo "[cron] dispatch failed at $$(date -u +%FT%TZ)";
+          sleep 60;
+        done
+
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    profiles: ["tunnel"]
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_healthy
+    # Create the tunnel in Zero Trust → Networks → Tunnels, route a hostname to
+    # http://app:8787, and put its token in TUNNEL_TOKEN (.env or the shell);
+    # cloudflared exits immediately when it is empty.
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${TUNNEL_TOKEN:-}
+
+volumes:
+  personxai-data:

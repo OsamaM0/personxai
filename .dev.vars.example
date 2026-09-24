@@ -1,0 +1,87 @@
+# ── Copy to .dev.vars for local dev / Docker (or let `npm run setup` write it); production
+#    secrets go in with `wrangler secret bulk secrets.json` — see docs/DEPLOYMENT.md ──
+
+# Telegram (required)
+TELEGRAM_BOT_TOKEN=123456:ABC-your-bot-token
+TELEGRAM_WEBHOOK_SECRET=generate-a-long-random-string
+OWNER_TELEGRAM_ID=123456789
+VAULT_CHANNEL_ID=-1001234567890
+
+# ── WhatsApp (optional second channel — docs/WHATSAPP.md) ────────────────────
+# All four WHATSAPP_* values must be set together or left unset. The first
+# message from OWNER_WHATSAPP_ID (E.164 digits, "+" optional) links WhatsApp to
+# the same owner account: same projects, tasks, files and memory.
+#WHATSAPP_ACCESS_TOKEN=EAAB...            # permanent System User token
+#WHATSAPP_PHONE_NUMBER_ID=1234567890      # WhatsApp → API Setup → Phone number ID
+#WHATSAPP_APP_SECRET=...                  # App settings → Basic → App secret (signs webhooks)
+#WHATSAPP_VERIFY_TOKEN=generate-a-random-string   # you paste the same value into Meta's webhook form
+#OWNER_WHATSAPP_ID=+201001234567
+#WHATSAPP_API_VERSION=v22.0               # Graph API version; default v22.0
+
+# Supabase (required) — service role key from Dashboard → Settings → API
+SUPABASE_URL=https://YOUR-PROJECT.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=eyJ...
+
+# Dispatcher bearer secret for POST /dispatch (required)
+DISPATCH_SECRET=generate-another-long-random-string
+
+# ── Web dashboard (docs/DASHBOARD.md) ────────────────────────────────────────
+# Signs magic links and session cookies. Optional: falls back to DISPATCH_SECRET.
+# Setting it separately lets you invalidate every dashboard session without
+# rotating the dispatcher secret. Minimum 16 characters.
+# WEB_SESSION_SECRET=generate-a-third-long-random-string
+#
+# Only needed if /dashboard must work before the Telegram webhook is registered,
+# or when the dashboard is served from another origin (Docker behind a tunnel,
+# Vercel) — otherwise the Worker discovers its own origin from getWebhookInfo.
+# PUBLIC_BASE_URL=https://personxai.your-subdomain.workers.dev
+#
+# Extra origins allowed to call the dashboard API (comma-separated). Required
+# when the dashboard is hosted on Vercel in front of the Worker (docs/VERCEL.md).
+# ALLOWED_ORIGINS=https://your-app.vercel.app
+
+# ── LLM configuration ────────────────────────────────────────────────────────
+# Pick ONE preset (see docs/FREE_TIER.md):
+#
+#   cloudflare  - zero external accounts; everything on Workers AI          ($0)
+#   groq        - best free tool calling (gpt-oss-120b/20b)                 ($0)
+#   openrouter  - widest choice of :free models                            ($0)
+#   openai      - gpt-4.1 / gpt-4.1-mini / whisper-1                       (paid)
+#   custom      - ANY OpenAI-compatible endpoint (self-hosted, proxy, new provider)
+#
+# In Docker there is no Workers AI binding: use groq / openrouter / openai /
+# custom, and point EMBEDDINGS_* / STT_* at an external endpoint too (docs/DOCKER.md).
+LLM_PRESET=groq
+GROQ_API_KEY=gsk_...
+#OPENROUTER_API_KEY=sk-or-...
+#OPENAI_API_KEY=sk-...
+
+# For LLM_PRESET=custom:
+#LLM_BASE_URL=https://your-endpoint/v1
+#LLM_API_KEY=...
+#LLM_MAIN_MODEL=your-model
+#LLM_CLASSIFIER_MODEL=your-smaller-model
+
+# Any per-role variable overrides the preset field-by-field: set only
+# LLM_MAIN_MODEL to keep the preset's endpoint but swap the model.
+#LLM_MAIN_BASE_URL=
+#LLM_MAIN_API_KEY=
+
+# Embeddings default to Workers AI @cf/baai/bge-m3 (1024 dims, multilingual).
+# Any OpenAI-compatible /embeddings endpoint serving a 1024-dim model works
+# here; changing dimensions needs a migration — see docs/RE_EMBEDDING.md.
+#EMBEDDINGS_BASE_URL=
+#EMBEDDINGS_API_KEY=
+#EMBEDDINGS_MODEL=
+#EMBEDDINGS_DIMS=1024
+
+# Speech-to-text and vision (optional; both fall back to Workers AI)
+#STT_BASE_URL=
+#STT_API_KEY=
+#STT_MODEL=
+#VISION_BASE_URL=
+#VISION_API_KEY=
+#VISION_MODEL=
+
+# Web search for research mode (optional)
+#SEARCH_API_KEY=

@@ -1,0 +1,33 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "personxai",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-08-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "durable_objects": {
+    "bindings": [{ "name": "UserAgent", "class_name": "UserAgent" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["UserAgent"] }],
+  "ai": { "binding": "AI", "remote": true },
+  // Web dashboard (docs/DASHBOARD.md). Everything under ./public is served by
+  // Cloudflare's asset host on the same origin as the worker — no second deploy,
+  // no CORS. Only the paths below reach the worker; the rest fall through to the
+  // SPA, so any unknown path renders index.html and the client routes it.
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*", "/auth/*", "/channels/*", "/mcp", "/mcp/*", "/dispatch", "/admin/*", "/health"]
+  },
+  "triggers": { "crons": ["* * * * *"] },
+  "observability": { "enabled": true, "head_sampling_rate": 1 },
+  "vars": {
+    "DEFAULT_TIMEZONE": "Africa/Cairo",
+    "DEFAULT_LANGUAGE": "en",
+    "EMBEDDINGS_DIMS": "1024"
+  }
+  // R2 is opt-in (requires a payment card on the Cloudflare account even for the free tier).
+  // To enable: create bucket `personxai-artifacts`, then add:
+  // "r2_buckets": [{ "binding": "ARTIFACTS", "bucket_name": "personxai-artifacts" }]
+  // and set R2_ENABLED=true via vars. See docs/FREE_TIER.md.
+}

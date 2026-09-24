@@ -1,0 +1,50 @@
+# Continuous deployment to Cloudflare Workers.
+#
+# One-time setup in your fork → Settings → Secrets and variables → Actions:
+#   CLOUDFLARE_API_TOKEN   — "Edit Cloudflare Workers" template token
+#   CLOUDFLARE_ACCOUNT_ID  — Workers & Pages → overview (right sidebar)
+#
+# Runtime secrets (bot token, Supabase key, LLM key …) are NOT set here: upload
+# them once with `npx wrangler secret bulk secrets.json` (or `npm run setup`);
+# they persist across deploys.
+name: Deploy
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npm test
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Deploy Worker (+ dashboard assets)
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy

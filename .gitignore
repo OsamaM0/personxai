@@ -1,0 +1,20 @@
+node_modules/
+.wrangler/
+.dev.vars
+.env
+*.local
+dist/
+coverage/
+worker-configuration.d.ts
+.DS_Store
+Thumbs.db
+
+# Reference projects (not part of this repo)
+ref/
+
+# Local secrets for `wrangler secret bulk` — never commit
+secrets.json
+wrangler.dev.jsonc
+
+# Vercel project link (docs/VERCEL.md)
+.vercel/

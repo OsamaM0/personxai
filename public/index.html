@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>PersonXAI</title>
+    <!-- Telegram Mini App bridge. Must load before app.js, which reads
+         window.Telegram.WebApp on boot; in a plain browser it is a no-op. -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="/styles.css" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%234f7cff'/%3E%3Ctext x='16' y='22' font-family='system-ui' font-size='16' font-weight='700' fill='%23fff' text-anchor='middle'%3EX%3C/text%3E%3C/svg%3E"
+    />
+  </head>
+  <body>
+    <!-- Signed out -->
+    <main id="login" class="login" hidden>
+      <div class="login-card">
+        <div class="brand">
+          <span class="brand-mark">X</span>
+          <div>
+            <h1>PersonXAI</h1>
+            <p class="muted">Personal assistant control panel</p>
+          </div>
+        </div>
+        <p id="login-copy" class="login-copy">
+          Sign in with the bot. Press the button and a one-time link arrives in your Telegram DM —
+          it is valid for 10 minutes and works once.
+        </p>
+        <button id="login-btn" class="btn btn-primary btn-block">Send me a login link</button>
+        <p id="login-status" class="login-status" role="status" aria-live="polite"></p>
+        <p class="muted small login-hint">
+          Already chatting with the bot? Send it <code>/dashboard</code> to get the same link.
+        </p>
+      </div>
+    </main>
+
+    <!-- Signed in -->
+    <div id="app" class="app" hidden>
+      <aside class="sidebar">
+        <div class="brand brand-compact">
+          <span class="brand-mark">X</span>
+          <strong>PersonXAI</strong>
+        </div>
+        <nav id="nav" class="nav"></nav>
+        <div class="sidebar-foot">
+          <div id="who" class="who"></div>
+          <button id="logout-btn" class="btn btn-ghost btn-sm">Sign out</button>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <button id="menu-btn" class="btn btn-ghost btn-sm menu-btn" aria-label="Toggle navigation">☰</button>
+          <h2 id="view-title">Overview</h2>
+          <div class="topbar-actions">
+            <input id="global-search" type="search" placeholder="Search everything…" autocomplete="off" />
+            <button id="refresh-btn" class="btn btn-ghost btn-sm" title="Reload this view">↻</button>
+          </div>
+        </header>
+        <section id="view" class="view" aria-live="polite"></section>
+      </main>
+    </div>
+
+    <!-- Modal host -->
+    <div id="modal-root" class="modal-root" hidden>
+      <div class="modal-backdrop" data-close="1"></div>
+      <div class="modal" role="dialog" aria-modal="true">
+        <header class="modal-head">
+          <h3 id="modal-title"></h3>
+          <button class="btn btn-ghost btn-sm" data-close="1" aria-label="Close">✕</button>
+        </header>
+        <form id="modal-form" class="modal-body"></form>
+        <footer class="modal-foot">
+          <span id="modal-error" class="form-error"></span>
+          <span class="spacer"></span>
+          <button type="button" class="btn btn-ghost" data-close="1">Cancel</button>
+          <button type="submit" form="modal-form" class="btn btn-primary" id="modal-submit">Save</button>
+        </footer>
+      </div>
+    </div>
+
+    <div id="toasts" class="toasts" aria-live="polite"></div>
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>

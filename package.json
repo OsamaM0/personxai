@@ -1,0 +1,69 @@
+{
+  "name": "personxai",
+  "version": "0.1.0",
+  "description": "Personal AI assistant in Telegram and WhatsApp \u2014 Cloudflare Workers + Agents SDK + Supabase. Projects, tasks, notes, file vault, memory, reminders, skills, MCP. Docker and Vercel ready.",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "types": "wrangler types",
+    "check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "schema": "node scripts/build-schema.mjs",
+    "db:reset": "node scripts/reset-db.mjs",
+    "docker:build": "docker build -t personxai .",
+    "docker:up": "docker compose up -d --build",
+    "docker:logs": "docker compose logs -f app",
+    "docker:down": "docker compose down",
+    "vercel:deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "@ai-sdk/openai-compatible": "^3.0.39",
+    "@supabase/supabase-js": "^2.112.4",
+    "agents": "^0.21.0",
+    "ai": "^7.0.83",
+    "date-fns": "^4.4.0",
+    "date-fns-tz": "^3.2.0",
+    "nanoid": "^6.0.1",
+    "rrule": "^2.8.1",
+    "unpdf": "^1.8.1",
+    "workers-ai-provider": "^4.0.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.22.0",
+    "@cloudflare/workers-types": "^5.20260827.1",
+    "@vercel/edge": "^1.2.1",
+    "typescript": "^5.9.0",
+    "vitest": "^4.1.0",
+    "wrangler": "^4.126.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/osamam0/personxai"
+  },
+  "keywords": [
+    "telegram-bot",
+    "whatsapp-bot",
+    "whatsapp-cloud-api",
+    "docker",
+    "vercel",
+    "ai-assistant",
+    "cloudflare-workers",
+    "durable-objects",
+    "supabase",
+    "pgvector",
+    "mcp",
+    "agents",
+    "personal-assistant",
+    "serverless",
+    "arabic"
+  ],
+  "engines": {
+    "node": ">=20"
+  }
+}

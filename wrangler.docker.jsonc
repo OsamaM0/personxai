@@ -1,0 +1,29 @@
+// Container / self-hosted config (docs/DOCKER.md). Identical to wrangler.jsonc
+// minus the two things a container cannot provide:
+//   - the Workers AI binding (needs a Cloudflare session) → use an external
+//     LLM preset; embeddings/STT can point at any OpenAI-compatible endpoint;
+//   - cron triggers → the compose "cron" sidecar POSTs /dispatch every minute.
+// Durable Objects, SQLite state and static assets run locally on workerd.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "personxai",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-08-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "durable_objects": {
+    "bindings": [{ "name": "UserAgent", "class_name": "UserAgent" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["UserAgent"] }],
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*", "/auth/*", "/channels/*", "/mcp", "/mcp/*", "/dispatch", "/admin/*", "/health"]
+  },
+  "observability": { "enabled": true },
+  "vars": {
+    "DEFAULT_TIMEZONE": "Africa/Cairo",
+    "DEFAULT_LANGUAGE": "en",
+    "EMBEDDINGS_DIMS": "1024"
+  }
+}
